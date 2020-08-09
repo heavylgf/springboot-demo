@@ -8,10 +8,13 @@ import static org.hamcrest.Matchers.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zhss.springboot.mapper.UserMapper;
+import com.zhss.springboot.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +27,7 @@ import com.zhss.springboot.domain.User;
  * 单元测试尽量不要依赖外部，但是直到最后一层的时候，DAO层的时候，跟redis，rabbitmq打交道
  * 还是要依靠开发环境里的基础设施，来进行单元测试
  * 
- * @author zhonghuashishan
+ * @author liugf
  *
  */
 @RunWith(SpringRunner.class) 
@@ -32,13 +35,14 @@ import com.zhss.springboot.domain.User;
 @Transactional 
 @Rollback(true)
 public class UserDAOImplTest {
+	// DAO我们直接可以连接到数据库去测试，不用去做这个mock
 
 	/**
 	 * 用户管理模块的DAO组件
 	 */
 	@Autowired
 	private UserDAO userDAO;
-	
+
 	/**
 	 * 测试用例：查询所有用户信息
 	 */
@@ -48,6 +52,7 @@ public class UserDAOImplTest {
 		User user = new User();
 		user.setName("测试用户");  
 		user.setAge(20);
+		// 先插入一条数据
 		userDAO.saveUser(user);
 		
 		List<User> users = new ArrayList<User>();
@@ -68,6 +73,7 @@ public class UserDAOImplTest {
 		User user = new User();
 		user.setName("测试用户");  
 		user.setAge(20);
+		// 先插入一条数据
 		userDAO.saveUser(user);
 		
 		Long userId = user.getId();
@@ -76,7 +82,10 @@ public class UserDAOImplTest {
 
 		System.out.println("user.toString : ");
 		System.out.println("resultUser.toString : ");
-		
+
+		// 这样写是不正确的，他们不是一个对象
+//		assertEquals(user, resultUser);
+
 		assertEquals(user.toString(), resultUser.toString());
 
 	}
@@ -89,9 +98,9 @@ public class UserDAOImplTest {
 		User user = new User();
 		user.setName("测试用户");  
 		user.setAge(20);
-		
+		// 插入一条数据
 		Long resultUserId = userDAO.saveUser(user);
-		
+		// 判断这个userId 是大于0的
 		assertThat(resultUserId, is(greaterThan(0L)));
 	}
 	
@@ -107,14 +116,16 @@ public class UserDAOImplTest {
 		user.setName("测试用户");  
 		user.setAge(oldAge);
 		userDAO.saveUser(user);
-		
+
+		// 修改新的值
 		user.setAge(newAge); 
 		Boolean updateResult = userDAO.updateUser(user);
-		
-		assertTrue(updateResult); 
-		
+		// 返回true
+		assertTrue(updateResult);
+
+		// 查询下这个updatedUser
 		User updatedUser = userDAO.getUserById(user.getId());
-		
+		// 期待是得到新的age
 		assertEquals(newAge, updatedUser.getAge());
 	}
 	

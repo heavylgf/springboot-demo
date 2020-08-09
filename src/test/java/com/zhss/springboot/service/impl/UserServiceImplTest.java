@@ -1,16 +1,16 @@
 package com.zhss.springboot.service.impl;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.zhss.springboot.dao.UserDAO;
 import com.zhss.springboot.domain.User;
 import com.zhss.springboot.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.omg.PortableInterceptor.USER_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +43,8 @@ import static org.mockito.Mockito.when;
  * 接着测试完之后，其实应该让这个事务要回滚，就可以自动取消我们插入的那些数据了
  * 让单元测试方法执行的这些增删改的操作，都是一次性的
  */
-//@Transactional
-
+@Transactional
+@Rollback(true)
 public class UserServiceImplTest {
     /**
      * 用户管理模块的service组件
@@ -78,6 +78,7 @@ public class UserServiceImplTest {
         users.add(user);
 
         // 对userDAO进行mock逻辑设置
+        // 这里会返回users
         when(userDAO.listUsers()).thenReturn(users);
 
         // 测试UserService的listUsers()
@@ -93,6 +94,7 @@ public class UserServiceImplTest {
      */
     @Test
     public void getUserById() {
+        // 准备模拟数据
         Long userId = 1L;
 
         User user = new User();
@@ -100,8 +102,10 @@ public class UserServiceImplTest {
         user.setName("测试用户");
         user.setAge(20);
 
+        // 对UserDAO进行mock设置
         when(userDAO.getUserById(userId)).thenReturn(user);
 
+        // 执行测试
         User resultUser = userService.getUserById(userId);
 
         assertEquals(user, resultUser);
@@ -163,4 +167,5 @@ public class UserServiceImplTest {
         assertTrue(removeResult);
 
     }
+
 }
