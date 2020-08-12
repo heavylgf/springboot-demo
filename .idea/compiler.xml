@@ -7,10 +7,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="oa-organ" />
+        <module name="springboot-demo" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="oa-organ" target="1.7" />
+    <bytecodeTargetLevel target="1.8">
       <module name="springboot-demo" target="1.8" />
     </bytecodeTargetLevel>
   </component>
